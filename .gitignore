@@ -29,6 +29,9 @@ projectile.cache
 recentf
 session.*
 
+# vim
+*/.vim/.netrwhist
+
 # etc
 super-linter.log
 */.vim/pack/
