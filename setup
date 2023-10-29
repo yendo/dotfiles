@@ -1,0 +1,52 @@
+#!/bin/bash -e
+
+readonly SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
+dest_dir=$HOME
+
+__make_symlink() {
+  local -r dotfile=$1
+  local -r from_dir=$2
+  local -r dest_dir=$3
+
+  if [[ -L "$dest_dir/$dotfile" ]]; then
+    local symlink_dest
+    symlink_dest=$(readlink -vf "$dest_dir/$dotfile")
+    if [[ "$symlink_dest" == "$from_dir/$dotfile" ]]; then
+      echo "$dotfile is ok"
+      return
+    else
+      echo "$dest_dir/$dotfile is wrong symbolic link"
+      rm "$dest_dir/$dotfile"
+    fi
+  elif [[ -e "$dest_dir/$dotfile" ]]; then
+    echo "$dest_dir/$dotfile is not symbolic link"
+    mv "$dest_dir/$dotfile"{,.bak}
+  else
+    echo "$dest_dir/$dotfile is not found"
+  fi
+
+  ln -s "$from_dir/$dotfile" "$dest_dir/$dotfile"
+}
+
+if [[ -n $TEST_DEST_DIR ]]; then
+  dest_dir=$(readlink -f "$TEST_DEST_DIR")
+  if [[ "$dest_dir" == "$from_dir" ]]; then
+    echo "TEST_DEST_DIR should not be script directory"
+    exit 1
+  fi
+fi
+
+(
+  cd home
+  for dotfile in .[^#]*[^\.~]; do
+    __make_symlink "$dotfile" "$SCRIPT_DIR/home" "$dest_dir"
+  done
+)
+
+mkdir -p "$dest_dir/.config"
+(
+  cd xdg_config
+  for config_dir in *; do
+    __make_symlink "$config_dir" "$SCRIPT_DIR/xdg_config" "$dest_dir/.config"
+  done
+)

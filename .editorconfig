@@ -1,0 +1,21 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+trim_trailing_whitespace = true
+insert_final_newline = true
+charset = utf-8
+
+[.aspell.*]
+trim_trailing_whitespace = false
+
+[*.add.spl]
+trim_trailing_whitespace = false
+insert_final_newline = false
+
+[{setup,test_setup,.bashrc}]
+indent_style = space
+indent_size = 2

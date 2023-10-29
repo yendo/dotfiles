@@ -1,0 +1,43 @@
+#!/usr/bin/env bats
+
+DOTFILES_DIR="${BATS_TEST_DIRNAME}/home"
+FIRST_CONF_FILE=".aspell.conf"
+
+setup() {
+  export TEST_DEST_DIR=$(mktemp -d)
+}
+
+teardown() {
+  rm -rf "$TEST_DEST_DIR"
+}
+
+@test "Case: There are no files" {
+  run ./setup
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "${TEST_DEST_DIR}/${FIRST_CONF_FILE} is not found" ]
+}
+
+@test "Case: There are some setup symbolic links" {
+  ln -s ${DOTFILES_DIR}/${FIRST_CONF_FILE} ${TEST_DEST_DIR}/${FIRST_CONF_FILE}
+
+  run ./setup
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "${FIRST_CONF_FILE} is ok" ]
+}
+
+@test "Case: There are some wrong symbolic links" {
+  ln -s ./setup ${TEST_DEST_DIR}/${FIRST_CONF_FILE}
+
+  run ./setup
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "${TEST_DEST_DIR}/${FIRST_CONF_FILE} is wrong symbolic link" ]
+}
+
+@test "Case: There are some real files" {
+  touch ${TEST_DEST_DIR}/${FIRST_CONF_FILE}
+
+  run ./setup
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "${TEST_DEST_DIR}/${FIRST_CONF_FILE} is not symbolic link" ]
+  [ -e ${TEST_DEST_DIR}/${FIRST_CONF_FILE}.bak ]
+}

@@ -1,0 +1,4 @@
+.git/
+.config/Code/
+.kube/http-cache/
+cache/
